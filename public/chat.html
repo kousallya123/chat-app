@@ -1,0 +1,49 @@
+<!-- public/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="chatInterface" class="flex p-8 bg-gray-100">
+    <div id="userList" class="flex-none w-1/4 mr-8 bg-white p-4 rounded shadow-md">
+      <h3 class="text-lg font-bold mb-4 cursor-pointer">All Users:</h3>
+      <ul id="allUsers" class="overflow-y-auto max-h-96"></ul>
+    </div>
+    <div id="chatContainer" class="flex-1">
+      <div id="chatMessages" class="overflow-y-auto max-h-96 border-b-2 pb-4"></div>
+      <div class="flex items-center mt-4">
+        <input type="text" id="messageInput" placeholder="Type your message"
+          class="border border-gray-300 rounded-l px-4 py-2 w-full focus:outline-none focus:ring focus:border-blue-300">
+        <button onclick="sendMessage()"
+          class="bg-blue-500 text-white py-2 px-4 rounded-r hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
+          Send
+        </button>
+      </div>
+    </div>
+    <button onclick="logout()" class="ml-4 mt-4 bg-red-500 text-white h-10 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring focus:border-red-300">
+      Logout
+    </button>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchUsers();
+      displayCurrentUser();
+    });
+
+    function displayCurrentUser() {
+      const currentUser = localStorage.getItem('username');
+
+      if (currentUser) {
+        const userListHeader = document.querySelector('#userList h3');
+        userListHeader.textContent = `All Users For (${currentUser}):`;
+      }
+    }
+  </script>
+</body>
+</html>
