@@ -2,6 +2,7 @@
 let ws;
 let currentChatUser;
 const username = localStorage.getItem('username');
+const messageHistory = {};
 
 // Event listener for signup button
 async function signup() {
@@ -9,7 +10,7 @@ async function signup() {
   const signupUsernameInput = document.getElementById('signupUsername');
   const signupPasswordInput = document.getElementById('signupPassword');
   const errorDisplay = document.getElementById('signupErrorDisplay')
-  
+
   errorDisplay.textContent = '';
 
   if (!signupUsernameInput || !signupPasswordInput) {
@@ -54,7 +55,7 @@ async function login() {
   const loginPassword = loginPasswordInput.value;
 
   loginErrorDisplay.textContent = '';
-  
+
   try {
     const response = await fetch('/login', {
       method: 'POST',
@@ -94,9 +95,19 @@ function initializeChat() {
     try {
       const message = JSON.parse(event.data);
       if (message && message.type === 'message') {
-        if (message.from === currentChatUser ) {
-          displayMessage({'content': `${message.content}`});
+        // Save the received message in the message history
+        const receivedMessage = { content: message.content, to: username, from: message.from };
+        if (!messageHistory[message.from]) {
+          messageHistory[message.from] = []; // Initialize as an array if not exists
         }
+        messageHistory[message.from].push(receivedMessage);
+
+        // Display the received message in the chat
+        if (currentChatUser === message.from) {
+          displayMessage(receivedMessage);
+        }
+
+
       } else {
         console.error('Invalid message format:', message);
       }
@@ -104,9 +115,9 @@ function initializeChat() {
       console.error('Error parsing message:', error);
     }
   };
-  
-  ws.onclose = () => {  
-    console.log('Connection closed'); 
+
+  ws.onclose = () => {
+    console.log('Connection closed');
     alert('WebSocket connection closed. Please refresh the page.');
     location.reload();
   };
@@ -159,23 +170,45 @@ function startChat(recipientUsername) {
   const chatHeader = document.getElementById('chatHeader');
   chatHeader.innerHTML = `Chatting with ${recipientUsername}<br>`;
   chatHeader.className = 'cursor-pointer text-lg mt-2 p-2 rounded font-bold text-blue-700 transition duration-300';
+
+  // Clear previous messages
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.innerHTML = '';
+
+  // Display messages for the selected user
+  if (messageHistory[recipientUsername]) {
+    messageHistory[recipientUsername].forEach(message => displayMessage(message));
+  }
 }
 
 // Send a message
 function sendMessage() {
   const messageInput = document.getElementById('messageInput');
-  const message = messageInput.value.trim();
+  const messageContent = messageInput.value.trim();
 
-  if (message && currentChatUser && ws && ws.readyState === WebSocket.OPEN) {
+  if (messageContent && currentChatUser && ws && ws.readyState === WebSocket.OPEN) {
+    // Save the sent message in the message history
+    const sentMessage = { content: messageContent, to: currentChatUser, from: username };
+    if (!messageHistory[currentChatUser]) {
+      messageHistory[currentChatUser] = [];
+    }
+    messageHistory[currentChatUser].push(sentMessage);
+
+    // Send the message via WebSocket
     ws.send(JSON.stringify({
       type: 'message',
-      content: message,
+      content: messageContent,
       to: currentChatUser,
     }));
-    displayMessage({ content: `${message}`,to:username });
+
+    // Display the sent message in the chat
+    displayMessage(sentMessage);
+
+    // Clear the input field
     messageInput.value = '';
   }
 }
+
 
 // Display a message in the chat
 function displayMessage(message) {
@@ -187,13 +220,13 @@ function displayMessage(message) {
 
   // Create a div element for the message
   const messageDiv = document.createElement('div');
-  messageDiv.classList.add('p-1', 'text-white','mt-2','font-semibold','text-md','mx-[2rem]');
+  messageDiv.classList.add('p-1', 'text-white', 'mt-2', 'font-semibold', 'text-md', 'mx-[2rem]');
 
   // Set the content of the message
   const messageContent = document.createElement('p');
-  messageContent.textContent = message.content 
+  messageContent.textContent = message.content
   // Determine alignment and style based on the sender
-  if (message.to === username) {
+  if (message.to !== username) {
     messageDiv.classList.add('bg-gray-400', 'rounded-br-lg', 'rounded-tl-lg', 'float-right');
   } else {
     messageDiv.classList.add('bg-blue-400', 'rounded-bl-lg', 'rounded-tr-lg', 'float-left');
