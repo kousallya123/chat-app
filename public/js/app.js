@@ -8,6 +8,9 @@ async function signup() {
   // Retrieve signup input elements
   const signupUsernameInput = document.getElementById('signupUsername');
   const signupPasswordInput = document.getElementById('signupPassword');
+  const errorDisplay = document.getElementById('signupErrorDisplay')
+  
+  errorDisplay.textContent = '';
 
   if (!signupUsernameInput || !signupPasswordInput) {
     console.error('Error: Input elements not found');
@@ -30,8 +33,10 @@ async function signup() {
       console.log('Signup successful');
       window.location.href = '/'
     } else {
-      console.error('Signup failed:', response.statusText);
-      // Handle signup failure
+      const errorMessage = await response.text();
+      console.error('Signup failed:', errorMessage);
+      // Display the error message to the user
+      errorDisplay.textContent = errorMessage;
     }
   } catch (error) {
     console.error('Error during signup:', error);
@@ -41,9 +46,15 @@ async function signup() {
 
 // Event listener for login button
 async function login() {
-  const loginUsername = document.getElementById('loginUsername').value;
-  const loginPassword = document.getElementById('loginPassword').value;
+  const loginUsernameInput = document.getElementById('loginUsername');
+  const loginPasswordInput = document.getElementById('loginPassword');
+  const loginErrorDisplay = document.getElementById('loginErrorDisplay');
 
+  const loginUsername = loginUsernameInput.value;
+  const loginPassword = loginPasswordInput.value;
+
+  loginErrorDisplay.textContent = '';
+  
   try {
     const response = await fetch('/login', {
       method: 'POST',
@@ -52,19 +63,24 @@ async function login() {
       },
       body: JSON.stringify({ username: loginUsername, password: loginPassword }),
     });
+
     if (response.ok) {
       console.log('Login successful');
       localStorage.setItem('username', loginUsername);
       window.location.href = '/chat';
     } else {
-      console.error('Login failed:', response.statusText);
-      // Handle login failure
+      const errorMessage = await response.text();
+      console.error('Login failed:', errorMessage);
+
+      // Display the login error message
+      loginErrorDisplay.textContent = errorMessage;
     }
   } catch (error) {
     console.error('Error during login:', error);
     // Handle other errors
   }
 }
+
 
 // Initialize WebSocket connection for chat
 function initializeChat() {
@@ -88,9 +104,11 @@ function initializeChat() {
       console.error('Error parsing message:', error);
     }
   };
-
-  ws.onclose = () => {
-    console.log('Connection closed');
+  
+  ws.onclose = () => {  
+    console.log('Connection closed'); 
+    alert('WebSocket connection closed. Please refresh the page.');
+    location.reload();
   };
 }
 // Check if a username is present in localStorage
@@ -138,8 +156,9 @@ async function fetchUsers() {
 // Start chat with a specific user
 function startChat(recipientUsername) {
   currentChatUser = recipientUsername;
-  const chatMessages = document.getElementById('chatMessages');
-  chatMessages.innerHTML = `Chatting with ${recipientUsername}<br>`;
+  const chatHeader = document.getElementById('chatHeader');
+  chatHeader.innerHTML = `Chatting with ${recipientUsername}<br>`;
+  chatHeader.className = 'cursor-pointer text-lg mt-2 p-2 rounded font-bold text-blue-700 transition duration-300';
 }
 
 // Send a message
@@ -168,7 +187,7 @@ function displayMessage(message) {
 
   // Create a div element for the message
   const messageDiv = document.createElement('div');
-  messageDiv.classList.add('p-1', 'text-white','mt-2');
+  messageDiv.classList.add('p-1', 'text-white','mt-2','font-semibold','text-md','mx-[2rem]');
 
   // Set the content of the message
   const messageContent = document.createElement('p');

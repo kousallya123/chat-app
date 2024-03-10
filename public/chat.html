@@ -14,18 +14,19 @@
       <h3 class="text-lg font-bold mb-4 cursor-pointer">All Users:</h3>
       <ul id="allUsers" class="overflow-y-auto max-h-96"></ul>
     </div>
-    <div id="chatContainer" class="flex-1">
-      <div id="chatMessages" class="overflow-y-auto max-h-96 border-b-2 pb-4"></div>
+    <div id="chatContainer" class="flex-1 " >
+      <div id="chatHeader" class="overflow-y-auto  pb-4"></div>
+      <div id="chatMessages" class="overflow-y-auto min-h-96 border-t-2 pb-4"></div>
       <div class="flex items-center mt-4">
         <input type="text" id="messageInput" placeholder="Type your message"
-          class="border border-gray-300 rounded-l px-4 py-2 w-full focus:outline-none focus:ring focus:border-blue-300">
+          class="border border-gray-300 rounded-l px-4 py-2 w-full focus:outline-none focus:ring focus:border-blue-300" required>
         <button onclick="sendMessage()"
           class="bg-blue-500 text-white py-2 px-4 rounded-r hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
           Send
         </button>
       </div>
     </div>
-    <button onclick="logout()" class="ml-4 mt-4 bg-red-500 text-white h-10 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring focus:border-red-300">
+    <button onclick="logout()" class="ml-4  bg-red-500 text-white h-10 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring focus:border-red-300">
       Logout
     </button>
   </div>
@@ -42,6 +43,8 @@
       if (currentUser) {
         const userListHeader = document.querySelector('#userList h3');
         userListHeader.textContent = `All Users For (${currentUser}):`;
+      }else{
+        window.location.href='/'
       }
     }
   </script>

@@ -80,8 +80,6 @@ function configureWebSocket(server) {
 
       try {
         const jsonData = JSON.parse(payloadString);
-        console.log(jsonData, 'Received JSON data');
-
         const recipientUserId = jsonData.to;
         const recipient = clients.get(recipientUserId);
         const response = {
@@ -96,15 +94,14 @@ function configureWebSocket(server) {
           recipient.write(frame);
         }
       } catch (error) {
-        console.error('Error parsing payload to JSON:', error);
-        console.error('Payload that caused the error:', payloadString);
-        // Handle the error here, e.g., log it or implement a fallback mechanism
+        console.error('Error parsing payload to JSON:', error.message);
       }
     }
-
+  
     function handleWebSocketEnd(userId) {
       clients.delete(userId);
       console.log(`WebSocket connection closed for user ${userId}`);
+
     }
   });
 }
