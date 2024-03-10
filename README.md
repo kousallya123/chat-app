@@ -27,7 +27,7 @@ The Real-Time Chat Application is a simple web-based chat system that enables us
 2. Ensure Node.js is installed on your system.
 3. Run npm install to install project dependencies.
 4. Start the server by running node server.js.
-5. Open index.html in a web browser using http://localhost:3000/.
+5. Open login.html in a web browser using http://localhost:3000/.
 
 ### Usage:
 
